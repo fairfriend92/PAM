@@ -1,9 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpi4py import MPI
-
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
 
 e_p = 0.0       # energy of p-orbital electron
 t_pp = 0.5      # p-p orbital hopping
