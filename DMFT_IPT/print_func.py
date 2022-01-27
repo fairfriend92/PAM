@@ -96,7 +96,7 @@ def dos(beta_print, w, dos_U, U_print, y_labels, hyst):
                     axs.plot(w, dos[k][j], label=y_labels[k])                    
         fig.supylabel(r'$\rho(\omega)$')    
         plt.suptitle(r'$\beta=$'+f'{beta:.3}')
-        plt.xlim(-4, 1.5)
+        plt.xlim(-4, 4) #plt.xlim(-4, 1.5) 
         plt.ylim(0, 3)
         plt.legend()
         plt.savefig("./figures/dos_beta="+f'{beta:.3}'+".pdf")
@@ -182,7 +182,7 @@ def n(beta_print, n_U, U_print, mu_list, y_labels, x_label):
             plt.xlabel(x_label)
             plt.ylabel('n')
             plt.plot(x, n, label='beta='+f'{beta:.3}'+' '+y_labels[j])
-            plt.ylim(0.0, 1.0)
+            #plt.ylim(0.0, 1.0)
             plt.legend()
     plt.savefig("./figures/n.png")
 

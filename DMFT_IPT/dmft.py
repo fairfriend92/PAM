@@ -96,11 +96,6 @@ def loop(U, t, mu, g_wn, wn, tau, beta,
     file = open("./data/not_converged/dmft_loop_beta="+f'{beta:.3}'+"_U="+f'{U:.3}'+".txt", "w") 
     file.write("n_up\tn_dn\tg_diff_up\tg_diff_dn\n")
     
-    # Initial values
-    if (model == 'PAM'):
-        g_p_wn = g_wn[0]
-        g_d_wn = g_wn[1]
-    
     while not converged:
         g_wn_old = []
         g_0_wn = []
@@ -129,7 +124,8 @@ def loop(U, t, mu, g_wn, wn, tau, beta,
             g_wn, sigma_wn = ipt_anti_ferr(beta, U, g_0_wn[0], g_0_wn[1], wn, 
                                            tau, n[0], n[1], loops)  
         else:            
-            g_wn[1], sigma_wn = ipt_para_mag(beta, U, g_0_wn[0], wn, tau, loops) 
+            g_wn, sigma_wn = ipt_para_mag(beta, U, g_0_wn[0], wn, tau, loops) 
+            g_wn = [g_wn] * 2
             sigma_wn = [sigma_wn] * 2
                     
         # Compute local GF of p-electrons 

@@ -46,20 +46,18 @@ for beta in beta_list:
     d_beta = []
     e_kin_beta = []
     Z_beta = []
-    phase_beta = []
-    g_w = []
-    sig_w = []
+    phase_beta = []    
     g_wn_beta = [[],[]]
     g_tau_beta = [[],[]]
 
-    for mu, U in zip(mu_list, U_list):
-        #mu = U/2
-    
+    for mu, U in zip(mu_list, U_list):        
         g_wn, sig_wn =  dmft.loop(U, t, mu, g_wn, wn, tau, beta, 
                                   mix=1., conv=1e-3, max_loops=50, 
                                   m_start=0.0)
         
         # Analytic continuation using Pade
+        g_w = []
+        sig_w = []
         g_w.append(pade(g_wn[0], w, wn))
         g_w.append(pade(g_wn[1], w, wn))
         #sig_w.append(pade(sig_wn[0], w, wn))
@@ -79,9 +77,8 @@ for beta in beta_list:
             dos_beta[1].append(-g_w[1].imag/np.pi)
             
             # Electron concentration for temp 1/beta and energy w
-            n_beta[0].append(np.sum(g_wn[0].real) + 0.5)
-            n_beta[1].append(np.sum(g_wn[1].real) + 0.5)
-            print(n_beta[0][-1])
+            n_beta[0].append(2/beta*np.sum(g_wn[0].real) + 0.5)
+            n_beta[1].append(2/beta*np.sum(g_wn[1].real) + 0.5)
             
             # Double occupancy
             #d = n**2 + 1/(U*beta)*np.sum(g_wn[0]*sig_wn[0])
@@ -132,7 +129,7 @@ print_f.green_func(beta_print, tau_U, \
 print_f.n(beta_print, n_U, U_print, mu_list, y_labels, 'mu')
 #print_f.d(beta_print, d_U, U_print)
 
-#print_f.e_kin(beta_print, ekin_U, U_print)
+print_f.e_kin(beta_print, ekin_U, U_print)
 #print_f.phase(beta_list, U_print, g_wn_U[0])
 
 print_f.dos(beta_print, w, dos_U, U_print, y_labels, hyst)
