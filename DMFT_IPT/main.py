@@ -10,7 +10,7 @@ import print_func as print_f
 # TODO: Maybe arrays would be better than lists
 tau_U = []
 dos_U = []
-n_U = []
+n_U = [[],[]]
 d_U = []
 ekin_U = []
 Z_U = []
@@ -42,7 +42,7 @@ for beta in beta_list:
     w0_idx = int(len(w)/2)
     
     dos_beta = [[],[]]
-    n_beta = []
+    n_beta = [[],[]]
     d_beta = []
     e_kin_beta = []
     Z_beta = []
@@ -62,50 +62,51 @@ for beta in beta_list:
         # Analytic continuation using Pade
         g_w.append(pade(g_wn[0], w, wn))
         g_w.append(pade(g_wn[1], w, wn))
-        sig_w.append(pade(sig_wn[0], w, wn))
-        sig_w.append(pade(sig_wn[1], w, wn))
+        #sig_w.append(pade(sig_wn[0], w, wn))
+        #sig_w.append(pade(sig_wn[1], w, wn))
                 
-        if U in U_print and beta in beta_print:           
+        if U in U_print and beta in beta_print:          
             # Save Green functions
             g_wn_beta[0].append(g_wn[0])
             g_wn_beta[1].append(g_wn[1])
             g_tau_beta[0].append(ift(wn, g_wn[0], tau, beta))
             g_tau_beta[1].append(ift(wn, g_wn[1], tau, beta))
             
-            print("T="+f'{1/beta:.3f}'+"\tU="+f'{U:.3}')
+            print("T="+f'{1/beta:.3f}'+"\tU="+f'{U:.3}'+"\tmu="+f'{mu:.3}')
                         
             # DOS
             dos_beta[0].append(-g_w[0].imag/np.pi)
             dos_beta[1].append(-g_w[1].imag/np.pi)
             
             # Electron concentration for temp 1/beta and energy w
-            n = np.sum(g_wn[0].real) + 0.5
-            #print("n="+f'{n:.5f}')
-            n_beta.append(n)
+            n_beta[0].append(np.sum(g_wn[0].real) + 0.5)
+            n_beta[1].append(np.sum(g_wn[1].real) + 0.5)
+            print(n_beta[0][-1])
             
             # Double occupancy
-            d = n**2 + 1/(U*beta)*np.sum(g_wn[0]*sig_wn[0])
-            d_beta.append(d.real)
+            #d = n**2 + 1/(U*beta)*np.sum(g_wn[0]*sig_wn[0])
+            #d_beta.append(d.real)
             
             # Kinetic energy
             e_kin = 0.
             # Sum over Matsubara freq
             for w_n, sig_n in zip(wn[N:], sig_wn[0][N:]):
                 # Integral in epsilon
-                mu = 0.
+                mu = 0. # ?
                 g_k_wn = 1./(1.j*w_n + mu - e - sig_n)
                 e_kin += 2./beta * np.sum(de*e*dos_e*g_k_wn)
             #print("E_kin.real="+f'{e_kin.real:.5f}')
             e_kin_beta.append(e_kin.real)
             
             # Quasi-particle weight
-            dSig = (sig_w[0][w0_idx+1].real-sig_w[0][w0_idx].real)/dw
-            Z_beta.append(1/(1-dSig))
+            #dSig = (sig_w[0][w0_idx+1].real-sig_w[0][w0_idx].real)/dw
+            #Z_beta.append(1/(1-dSig))
     
     if beta in beta_print:
         tau_U.append(tau)
         dos_U.append(dos_beta)
-        n_U.append(n_beta)
+        n_U[0].append(n_beta[0])
+        n_U[1].append(n_beta[1])
         d_U.append(d_beta)
         ekin_U.append(e_kin_beta)
         Z_U.append(Z_beta)
@@ -118,7 +119,7 @@ for beta in beta_list:
 ''' Printing functions '''
 
 if model == 'PAM':
-    y_labels = ['d electron', 'p electron']
+    y_labels = ['p electron', 'd electron']
 elif model == 'HM':
     y_labels = [r'$\sigma_\uparrow$', r'$\sigma_\downarrow$'] 
       
@@ -127,12 +128,12 @@ print_f.green_func(beta_print, tau_U, \
                     g_wn_U_up, g_wn_U_dn, g_tau_U_up, g_tau_U_dn, \
                     U_print, hyst, wn)
 '''
-print_f.gf_iw0(beta_print, g_wn_U[0], U_print)
-print_f.n(beta_print, n_U, U_print)
-print_f.d(beta_print, d_U, U_print)
+#print_f.gf_iw0(beta_print, g_wn_U[0], U_print)
+print_f.n(beta_print, n_U, U_print, mu_list, y_labels, 'mu')
+#print_f.d(beta_print, d_U, U_print)
 
-print_f.e_kin(beta_print, ekin_U, U_print)
-print_f.phase(beta_list, U_print, g_wn_U[0])
+#print_f.e_kin(beta_print, ekin_U, U_print)
+#print_f.phase(beta_list, U_print, g_wn_U[0])
 
 print_f.dos(beta_print, w, dos_U, U_print, y_labels, hyst)
-print_f.Z(beta_print, Z_U, U_print)
+#print_f.Z(beta_print, Z_U, U_print)

@@ -96,8 +96,8 @@ def dos(beta_print, w, dos_U, U_print, y_labels, hyst):
                     axs.plot(w, dos[k][j], label=y_labels[k])                    
         fig.supylabel(r'$\rho(\omega)$')    
         plt.suptitle(r'$\beta=$'+f'{beta:.3}')
-        #plt.xlim(-3, 1)
-        #plt.ylim(0, 3)
+        plt.xlim(-4, 1.5)
+        plt.ylim(0, 3)
         plt.legend()
         plt.savefig("./figures/dos_beta="+f'{beta:.3}'+".pdf")
         plt.close()
@@ -171,17 +171,19 @@ def gf_iw0(beta_print, g_wn_U_up, U_print):
         plt.close()
 
 # Print electron occupation
-def n(beta_print, n_U, U_print):
+def n(beta_print, n_U, U_print, mu_list, y_labels, x_label):
     plt.figure()
     print("Printing e concentration")
-    for i in range(len(beta_print)):        
-        n = n_U[i]
-        beta = beta_print[i]    
-        plt.xlabel('U')
-        plt.ylabel('n')
-        plt.plot(U_print, n, label='beta='+f'{beta:.3}')
-        plt.ylim(0.0, 1.0)
-        plt.legend()
+    x = U_print if x_label == 'U' else mu_list
+    for i in range(len(beta_print)): 
+        for j in range(len(y_labels)):
+            n = n_U[j][i]
+            beta = beta_print[i]    
+            plt.xlabel(x_label)
+            plt.ylabel('n')
+            plt.plot(x, n, label='beta='+f'{beta:.3}'+' '+y_labels[j])
+            plt.ylim(0.0, 1.0)
+            plt.legend()
     plt.savefig("./figures/n.png")
 
 # Print double occupancy

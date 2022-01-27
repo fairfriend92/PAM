@@ -82,9 +82,10 @@ def HM_g_0_wn(wn, m, t, mu, U, g_wn, n):
     return 1. / (1.j*wn + m - t**2 * g_wn + mu - U*np.round(n, 8))
 
 # Periodic Anderson model
-def PAM_g_0_wn(wn, t, mu, V, e_d, e_p, g_p_wn):
+def PAM_g_0_wn(wn, t, mu, U, V, e_d, e_p, g_p_wn, n_p, n_d):
     # TODO: Check if we should add - U*n after mu 
-    return 1. / (1.j*wn + mu - e_d - V**2/(1.j + mu - e_p - t**2*g_p_wn))
+    return 1. / (1.j*wn + mu - e_d - 
+           V**2/(1.j*wn + mu - e_p - t**2*g_p_wn))
 
 def loop(U, t, mu, g_wn, wn, tau, beta, 
          mix=1, conv=1e-3, max_loops=50, 
@@ -121,21 +122,22 @@ def loop(U, t, mu, g_wn, wn, tau, beta,
             g_0_wn.append(HM_g_0_wn(wn, m, t, mu, U, g_wn_old[0], n[1]))
             g_0_wn.append(HM_g_0_wn(wn, -m, t, mu, U, g_wn_old[1], n[0]))
         elif (model == 'PAM'):
-            g_0_wn.append(PAM_g_0_wn(wn, t, mu, V, e_d, e_p, g_wn[1]))
+            g_0_wn.append(PAM_g_0_wn(wn, t, mu, U, V, e_d, e_p, g_wn[0], n[0], n[1]))
         
         # Impurity solver
         if (m_start != 0.):
             g_wn, sigma_wn = ipt_anti_ferr(beta, U, g_0_wn[0], g_0_wn[1], wn, 
                                            tau, n[0], n[1], loops)  
         else:            
-            g_wn[0], sigma_wn = ipt_para_mag(beta, U, g_0_wn[0], wn, tau, loops) 
+            g_wn[1], sigma_wn = ipt_para_mag(beta, U, g_0_wn[0], wn, tau, loops) 
             sigma_wn = [sigma_wn] * 2
                     
         # Compute local GF of p-electrons 
         if (model == 'PAM'):
             # TODO: Find better way of doing this
-            g_wn[1] = np.array([np.sum(de*dos_e / (1.j*w + mu - e_p - V**2/(1.j + mu - e_d - sig_w)))
-                              for w, sig_w in zip(wn, sigma_wn[0])])
+            g_wn[0] = np.array([np.sum(de*dos_e / (1.j*w + mu - e_p - 
+                                           V**2 / (1.j*w + mu - e_d - sig_w) - e))
+                                for w, sig_w in zip(wn, sigma_wn[0])])
        
         # Check convergence
         converged = np.allclose(g_wn_old[0], g_wn[0], conv) 
