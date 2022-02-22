@@ -242,7 +242,8 @@ for U, T, E, kernel in UTE_.T:
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     
     #### Initialization
-    if kernel == 1:
+    # RODO: (1) begin with a guess for Sigma
+    if kernel == 1:                         # RODO: Initial guess for Sigma is zero?
         Sigma_U_p_R_w = zero
         Sigma_U_m_R_w = zero 
         Sigma_U_p_K_w = zero 
@@ -284,7 +285,7 @@ for U, T, E, kernel in UTE_.T:
     
     if kernel == 3:
         point         = '/'+str(ind)
-        seed          = np.load('Saved/' + rundate + point + '/fcts.npz')
+        seed          = np.load('Saved/' + rundate + point + '/fcts.npz') # RODO: Seed function in external file?
         param         = np.load('Saved/'+ rundate + '/param.npz')
         
         if not np.array_equal(w_,param['w_']) or not np.array_equal(k_,param['k_']):
@@ -394,7 +395,7 @@ for U, T, E, kernel in UTE_.T:
             
         
         #### Lattice GF via Dyson
-        G_p_R_wk = 1./(w_S_p_R - epsilon_k_M + t_perp_M - t_para**2*F_p_R_wk)
+        G_p_R_wk = 1./(w_S_p_R - epsilon_k_M + t_perp_M - t_para**2*F_p_R_wk) # RODO: Initially F_R_wk is zero?
         G_m_R_wk = 1./(w_S_m_R - epsilon_k_M - t_perp_M - t_para**2*F_m_R_wk)
         
         if wwE == 0 and not force_E_code:
@@ -405,12 +406,14 @@ for U, T, E, kernel in UTE_.T:
             G_m_K_wk = abs(G_m_R_wk)**2 * (Sigma_m_K_w_M + t_para**2*F_m_K_wk)
         
         #### Local GF
-        G_loc_p_R_w = np.sum(G_p_R_wk,1)/N_k
+        # RODO: (2) Sum the momentum-dependent GF over all momenta to determine local GF
+        G_loc_p_R_w = np.sum(G_p_R_wk,1)/N_k # RODO: Summing over momenta?
         G_loc_m_R_w = np.sum(G_m_R_wk,1)/N_k
         G_loc_p_K_w = np.sum(G_p_K_wk,1)/N_k
         G_loc_m_K_w = np.sum(G_m_K_wk,1)/N_k
         
         #### Impurity non-interacting GF
+        # RODO: (3) Use Dyson equation to determine the effective medium G0
         G_imp_p_R_w = 1./(1./G_loc_p_R_w + Sigma_U_p_R_w)
         G_imp_m_R_w = 1./(1./G_loc_m_R_w + Sigma_U_m_R_w)
 
@@ -459,6 +462,7 @@ for U, T, E, kernel in UTE_.T:
         G_imp_12_K_w = 0.5*(G_imp_p_K_w - G_imp_m_K_w)
             
             #### First order terms
+        # RODO: (4) Impurity solver
         Sigma_U_11_R_w = -0.5j*U*dw/(2*np.pi)*np.sum(G_imp_11_K_w)
         # Sigma_U_11_R_w = -U*dw/(2*np.pi)*np.sum(G_imp_11_K_w)
         Sigma_U_12_R_w = 0.
