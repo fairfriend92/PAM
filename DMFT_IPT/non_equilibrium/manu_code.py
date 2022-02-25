@@ -31,7 +31,7 @@ t_para = 0
 U_min  = 0   ; U_max = 16
 T_min  = 0.01  ; T_max = 0.11
 E_min  = 0. ; E_max = 0.519
-Gamma  = 0.008                  # RODO: ? 
+Gamma  = 0.008                  # RODO: Hybridization with bath, must be larger that dW 
 
 
 #### Precision parameters
@@ -233,7 +233,7 @@ n_UTE = 1
 for U, T, E, kernel in UTE_.T:
     
     beta = 1/T
-    wwE  = np.int32(np.floor(E/dw))
+    wwE  = np.int32(np.floor(E/dw)) # RODO: E is chosen as a multiple of dW, wwE is the multiplying factor
     if wwE > N_w-1: wwE = N_w - 1
     
     if E > 0 and E < 2*dw:
@@ -244,7 +244,8 @@ for U, T, E, kernel in UTE_.T:
     #### Initialization
     # RODO: (1) begin with a guess for Sigma
     if kernel == 1:                         # RODO: Initial guess for Sigma is zero?
-        Sigma_U_p_R_w = zero
+                                            # RODO: Starting from the metallic side
+        Sigma_U_p_R_w = zero # RODO: p stands for plus, m for minus. Dymer model
         Sigma_U_m_R_w = zero 
         Sigma_U_p_K_w = zero 
         Sigma_U_m_K_w = zero 
@@ -257,7 +258,7 @@ for U, T, E, kernel in UTE_.T:
         F_lp_K_wk     = np.zeros((N_w,N_k))
         F_lm_K_wk     = np.zeros((N_w,N_k))
 
-    if kernel == 2:
+    if kernel == 2: # RODO: Atomic limit, starting from insulating side
         if t_perp == 0:
             Sigma_U_p_R_w = (U**2/4)*wPV_
             Sigma_U_m_R_w = (U**2/4)*wPV_
@@ -309,7 +310,8 @@ for U, T, E, kernel in UTE_.T:
 
     #### Dissipation
     Sigma_th_R_w = zero - 1j*Gamma                      # RODO: Retarded Sigma bath?
-    Sigma_th_K_w = 2j * (-Gamma) * np.tanh(0.5*beta*w_) # RODO: Keldysh Sigma bath?
+    Sigma_th_K_w = 2j * (-Gamma) * np.tanh(0.5*beta*w_) # RODO: Keldysh Sigma bath? 
+    # RODO: Sigma_K obtained from Sigma_R through fluctuation-dissipation theorem
     
     #### DMFT loop  
     vv       = 0
@@ -319,7 +321,7 @@ for U, T, E, kernel in UTE_.T:
     # while n_dmft < n_dmft_max/2:
         
         #### Update total self-energies
-        Sigma_p_R_w = Sigma_U_p_R_w + Sigma_th_R_w  # RODO: Impurity Sigma + bath Sigma?
+        Sigma_p_R_w = Sigma_U_p_R_w + Sigma_th_R_w  # RODO: Impurity Sigma + bath Sigma? U stands for Hubbard
         Sigma_m_R_w = Sigma_U_m_R_w + Sigma_th_R_w
         Sigma_p_K_w = Sigma_U_p_K_w + Sigma_th_K_w
         Sigma_m_K_w = Sigma_U_m_K_w + Sigma_th_K_w
@@ -334,6 +336,7 @@ for U, T, E, kernel in UTE_.T:
         F_err    = 1
         n_iter_F = 1
         
+        # RODO: Camille Aron 2015 (alternative to Peiers substitution)
         while (F_err > tolerance_F_iter or n_iter_F < 2) and n_iter_F < n_iter_F_max:
             if wwE == 0 and not force_E_code:
                 F_rp_R_wk = 1./(w_S_p_R - epsilon_k_M + t_perp_M - t_para**2*F_rp_R_wk)
