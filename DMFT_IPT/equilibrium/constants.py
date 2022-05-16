@@ -16,14 +16,14 @@ e_d = 0.    # Energu of localized electrodes
 U_min = 2.
 dU = 0.1
 U_max = 3.5
-U_list = [1.] * len(np.arange(-2.5, 2, 0.1)) #np.arange(U_min, U_max, dU) #np.array([1., 2., 2.5, 3., 4.])
+U_list = [2.] #[2.] * len(np.arange(-2.5, 2, 0.1)) #np.arange(U_min, U_max, dU) #np.array([1., 2., 2.5, 3., 4.])
 U_print = U_list   
 if (hyst):
     U_list = np.append(U_list, U_print[::-1])
     U_print = np.append(U_print, U_print[::-1])
 
 # Chemical potential 
-mu_list =  np.arange(-2.5, 2, 0.1) #[0.529] * len(U_list)  #U_list / 2 
+mu_list =  [1.234] #np.arange(-2.5, 2, 0.1) #[0.529] * len(U_list)  #U_list / 2 
 
 # Inverse of temperature 
 beta_min = 4.

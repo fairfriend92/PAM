@@ -119,15 +119,16 @@ if model == 'PAM':
     g_labels = ['p electron', 'd electron']
 elif model == 'HM':
     g_labels = [r'$\sigma_\uparrow$', r'$\sigma_\downarrow$'] 
-      
+
+'''      
 print_f.green_func(beta_print, tau_U, g_wn_U, g_tau_U, 
                    U_print, g_labels, hyst, wn)
-
+'''
 #print_f.gf_iw0(beta_print, g_wn_U[0], U_print)
-print_f.n(beta_print, n_U, U_print, mu_list, g_labels, 'mu')
+#print_f.n(beta_print, n_U, U_print, mu_list, g_labels, 'mu')
 #print_f.d(beta_print, d_U, U_print)
 
-print_f.e_kin(beta_print, ekin_U, U_print)
+#print_f.e_kin(beta_print, ekin_U, U_print)
 #print_f.phase(beta_list, U_print, g_wn_U[0])
 
 print_f.dos(beta_print, w, dos_U, U_print, mu_list, g_labels, hyst)

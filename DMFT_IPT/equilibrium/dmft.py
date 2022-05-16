@@ -7,9 +7,10 @@ import print_func as print_f
 
 def ipt_para_mag(beta, U, g_0_wn, wn, tau, loop, mu):     
     g_0_tau = np.round(ift(wn, g_0_wn, tau, beta), 8)
+    g_0_tau_minus = np.array([g_0_tau[-t] for t in range(len(tau))])
     
     # IPT self-energy using G0 of quantum impurity
-    sigma_tau = U**2 * g_0_tau**3 
+    sigma_tau = U**2 * g_0_tau**2*g_0_tau_minus 
     sigma_wn = ft(wn, sigma_tau, tau, beta, a=0.)
     
     # Dyson eq.

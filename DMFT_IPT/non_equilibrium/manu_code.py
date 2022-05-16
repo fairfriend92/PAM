@@ -326,6 +326,9 @@ for U, T, E, kernel in UTE_.T:
         Sigma_p_K_w = Sigma_U_p_K_w + Sigma_th_K_w
         Sigma_m_K_w = Sigma_U_m_K_w + Sigma_th_K_w
         
+        
+        #!!!!! Sigma is included in Omega !!!!!#
+        
         w_S_p_R         = np.transpose((w_-Sigma_p_R_w)*np.ones((N_k,N_w))) #Used to compute F faster later
         w_S_m_R         = np.transpose((w_-Sigma_m_R_w)*np.ones((N_k,N_w)))
         Sigma_p_K_w_M   = np.transpose(Sigma_p_K_w*np.ones((N_k,N_w)))
@@ -352,7 +355,9 @@ for U, T, E, kernel in UTE_.T:
                 F_rp_K_p = np.append(F_rp_K_wk[wwE:N_w],1*F_rp_K_wk[-1]*np.ones((wwE,N_k)),0) # auxiliary
                 F_rm_K_p = np.append(F_rm_K_wk[wwE:N_w],1*F_rm_K_wk[-1]*np.ones((wwE,N_k)),0)
                 F_lp_K_m = np.append(1*F_lp_K_wk[0]*np.ones((wwE,N_k)),F_lp_K_wk[0:N_w-wwE],0)
-                F_lm_K_m = np.append(1*F_lm_K_wk[0]*np.ones((wwE,N_k)),F_lm_K_wk[0:N_w-wwE],0)                
+                F_lm_K_m = np.append(1*F_lm_K_wk[0]*np.ones((wwE,N_k)),F_lm_K_wk[0:N_w-wwE],0)    
+
+                #!!!!! Sigma is included in Omega !!!!!#
                 
                 F_rp_R_wk = 1./(w_S_p_R - epsilon_k_M + t_perp_M - t_para**2*F_rp_R_p)
                 F_rm_R_wk = 1./(w_S_m_R - epsilon_k_M - t_perp_M - t_para**2*F_rm_R_p)
@@ -490,7 +495,8 @@ for U, T, E, kernel in UTE_.T:
         
         # Im11R  = dw/(2*np.pi)*U**2*(np.convolve(-2*KR11+KK11, np.flipud(G_imp_11_K_w.imag), 'same') + np.convolve(RR11, np.flipud(G_imp_11_R_w.imag), 'same'))
         # Im12R  = dw/(2*np.pi)*U**2*(np.convolve(-2*KR12+KK12, np.flipud(G_imp_12_K_w.imag), 'same') + np.convolve(RR12, np.flipud(G_imp_12_R_w.imag), 'same'))
-
+        
+        # RODO           # Imaginary part # Real part via Kramers-Kronig relation
         Sigma_U_11_R_w = Sigma_U_11_R_w + KK_w(Im11R) 
         Sigma_U_12_R_w = Sigma_U_12_R_w + KK_w(Im12R) 
         

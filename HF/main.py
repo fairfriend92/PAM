@@ -191,7 +191,7 @@ def dos(mu_range, U_range, e_p = -1.0, T = 1.0/64, k_range=None):
             dos_d_dn = [] # DOS of d-electrons in lower band
 
             for omega in omega_range:
-                norm = de / np.sum(n)
+                norm = de /np.sum(n)
                
                 dos_omega_up = np.sum(lorentzian(omega, band_up))
                 dos_p_up.append(dos_omega_up * norm * n_p_up)
@@ -235,7 +235,7 @@ band_up = []    # upper energy band
 band_dn = []    # lower energy band  
 
 # main code
-#bands(e_p_range, mu, U, T) 
-occ_num(mu_range, e_p, U, T)
+#bands(e_p_range, mu, U, T, k_range) 
+#occ_num(mu_range, e_p, U, T)
 #phase_diag(mu_range, U_range, e_p, T)
-#dos(mu_range, U_range, e_p, T)
+dos(mu_range, U_range, e_p, T)
