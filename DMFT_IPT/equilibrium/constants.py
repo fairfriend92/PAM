@@ -10,7 +10,7 @@ hyst = False        # If true loop for decreasing U
 # PAM-specific
 V = 0.9     # Hybdridization
 e_p = -1.   # Energy of conduction electrodes
-e_d = 0.    # Energu of localized electrodes
+e_d = 0.    # Energy of localized electrodes
 
 # Electron interaction
 U_min = 2.
