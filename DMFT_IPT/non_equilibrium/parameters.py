@@ -10,6 +10,7 @@ t       = 0.5       # Hopping amplitude
 V       = 0.9       # d-p electrons hybridization
 U       = 2.0       # Coulomb interaction     
 E       = 0.5       # Electric field
+L       = 500       # Length of the semi-infinite chain
 
 # Input
 
@@ -19,8 +20,9 @@ maxW        = 5.                            # Highest frequency
 wArr        = np.arange(minW, maxW, dw)     # Frequencies
 N_w         = len(wArr)                     # Number of frequencies
 
-Sig_URArr   = U**2/(4*wArr)                 # Initial Coulomb self-energy, retarded component
+Sig_U_RArr   = U**2/(4*wArr)                 # Initial Coulomb self-energy, retarded component
 
 
 de      = 2.*t/256.                     # Lattice energy step  
 eArr    = np.arange(-2*t, 2*t, de)      # Lattice energy
+N_e     = len(eArr)                     # Len of energy array
