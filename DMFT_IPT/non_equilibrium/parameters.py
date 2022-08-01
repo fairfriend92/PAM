@@ -2,7 +2,7 @@ import numpy as np
 
 ''' Constants '''
 
-mu      = 0.5                                        # Chemical potential
+mu      = 0.5                                       # Chemical potential
 Gamma   = 8.e-3                                     # Damping parameter
 e_d     = 0.                                        # Energy of localized electrons
 e_p     = -1.                                       # Energy of conduction electrons
@@ -21,7 +21,7 @@ dU      = 1.                                        # Coulomb interaction step
 minU    = 0.                                        # Lowest Coulomb interaction
 maxU    = 2.                                        # Highest Coulomb interaction
 UArr    = np.arange(minU, maxU, dU)                 # Array of Us
-UArr    = [1.]
+UArr    = [0.]
 N_U     = len(UArr)                                 # Number of Us
 
 # Temperatures
@@ -30,6 +30,7 @@ dBeta       = 8.                                    # Inverse of temp. step
 minBeta     = 64.                                   # Lowest inverse of temp.
 maxBeta     = 72.                                   # Highest inverse of temp.
 betaArr     = np.arange(minBeta, maxBeta, dBeta)    # Array of betas
+betaArr     = [64.]
 N_beta      = len(betaArr)                          # Number of betas
 
 # Frequencies

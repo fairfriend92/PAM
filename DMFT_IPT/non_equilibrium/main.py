@@ -18,7 +18,7 @@ def myPlot(x, y,
             
     fig, ax = plt.subplots(figsize=(12, 8))
     size = 24 
-    ax.plot(x, y, color='black', marker='s')
+    ax.scatter(x, y, color='black', s=2)
     ax.set(xlabel=xLabel, ylabel=yLabel)
     ax.xaxis.label.set_size(size)
     ax.yaxis.label.set_size(size)
@@ -42,14 +42,16 @@ def trgtDos(G_pp_R, G_dd_R, beta, U):
            r'$\omega$', r'$\rho(\omega)$')
             
     myPlot(wArr, -G_dd_R.imag/np.pi,                
-           'DOS_d='+str(beta)+'_U='+str(U), 
+           'DOS_d_beta='+str(beta)+'_U='+str(U), 
            r'$\omega$', r'$\rho(\omega)$')    
     
 ''' Main '''
 
 for U in UArr:
     for beta in betaArr:
-        G_pp_R, G_dd_R = dmft.main(beta, U, 
+        #G_pp_seed_R = -2.j / (wArr + np.sign(wArr) * np.sqrt(np.power(wArr, 2) + D**2))
+        
+        G_pp_R, G_dd_R = dmft.main(beta, U,     
                                    Sig_U_RArr, Sig_U_KArr,
                                    Sig_B_RArr, Sig_B_KArr)
         
@@ -59,4 +61,4 @@ for U in UArr:
         thrDos = Thread(target=trgtDos, args=(G_pp_R, G_dd_R, beta, U))      # Create new thread
         thrDos.start()                                                       # Start the thread
         
-   
+thrDos.join()   

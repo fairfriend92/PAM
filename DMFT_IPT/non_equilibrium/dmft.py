@@ -87,12 +87,13 @@ def getSig_U(g_0_RArr, g_0_KArr, beta, U):
     
     # Compute the Keldysh component, assuming that the real part is zero
     Sig_U_KArr = 1.j*np.tanh(beta*wArr/2.)*Sig_U_RArr.imag
-    
+
     return Sig_U_RArr, Sig_U_KArr
 
 def main(beta, U, 
          Sig_U_RArr, Sig_U_KArr,
-         Sig_B_RArr, Sig_B_KArr):
+         Sig_B_RArr, Sig_B_KArr,
+         G_pp_RArr=np.zeros(N_w)):
     
     converged   = False             # Flag to check convergence of the dmft loop
     iter        = 0                 # dmft loop iterator
@@ -100,20 +101,17 @@ def main(beta, U,
     tic = time.process_time()
 
     # Update the Keldysh component of the bath self-energy 
-    if beta != minBeta:
-        Sig_B_KArr  = -1.j*np.tanh(beta*wArr/2.)*Gamma   
+    Sig_B_KArr  = -1.j*np.tanh(beta*wArr/2.)*Gamma           
 
     while not converged or iter <= 1:
         print("dmft loop iteration=" + str(iter)) 
         
         # Broadcast self-energy to the appropriate matrix shapes
         Sig_U_RMtrx  = np.transpose(Sig_U_RArr*np.ones([N_e, N_w]))
-        Sig_U_BMtrx  = np.transpose(Sig_B_RArr*np.ones([N_e, N_w]))
-        
-        print(Sig_U_RArr)
+        Sig_B_RMtrx  = np.transpose(Sig_B_RArr*np.ones([N_e, N_w]))
               
         # Inverse of the retarded component of the central site p Green function G(w, e)_00
-        G_00_R_invMtrx = 1.j*wMtrx + mu - eMtrx + Sig_U_BMtrx + - V**2/(1.j*wMtrx + mu - e_d - Sig_U_RMtrx)
+        G_00_R_invMtrx = 1.j*wMtrx + mu - e_p - eMtrx + Sig_B_RMtrx - V**2/(1.j*wMtrx + mu - e_d - Sig_U_RMtrx)
 
         # Thread for integrating G(w, e)_00 in the energy
         G_00List = [None]       # Stores the result of thread  
@@ -133,27 +131,28 @@ def main(beta, U,
 
         # Store old value
         if (iter > 0):
-            oldG_pp_RArr = G_pp_RArr
+            oldG_pp_RArr = G_pp_RArr.copy()
 
-        # Retarded component of the local p Green function G(w)_pp        
-        G_pp_RArr = np.reciprocal(G_00_R_invArr - t**2*(F_rhs_RArr + F_lhs_RArr))
+        # Retarded component of the local p Green function G(w)_pp 
+        if (iter > 0 or G_pp_RArr.all() == 0.):
+            G_pp_RArr = np.reciprocal(G_00_R_invArr - t**2*(F_rhs_RArr + F_lhs_RArr))
 
         # Retarded component of the impurity Green function g(w)_0
         g_0_RArr = np.reciprocal(1.j*wArr + mu - e_d - V**2/(1.j*wArr + mu - e_p - t**2*G_pp_RArr))
-
+        
         # Store old value
         if (iter > 0):
-            oldG_dd_RArr = G_dd_RArr
+            oldG_dd_RArr = G_dd_RArr.copy()
 
         # Retarded component of the local d Green function G(w)_dd
         G_dd_RArr = np.reciprocal(np.reciprocal(g_0_RArr) - Sig_U_RArr)
-
+        
         # Keldysh component of the impurity Green function g(w)_0
         g_0_KArr = np.power(g_0_RArr, 2)*Sig_B_KArr
 
         # Coulomb self-energy according to IPT
         Sig_U_RArr, Sig_U_KArr = getSig_U(g_0_RArr, g_0_KArr, beta, U)
-        
+                
         # Check convergence
         if (iter > 0):
             converged  = np.allclose(oldG_pp_RArr, G_pp_RArr, error)
