@@ -20,12 +20,12 @@ def getF_R(G_00_R_invMtrx):
     return F_RList[0], F_RList[1]
 
 # Thread for computing the retarded component of F(w)_+-
-def trgtF_R(G_00_R_invMtrx, # Inverse of the retarded component G(w, e)_00 
+def trgtF_R(G_00_R_invMtrx, # Inverse of the retarded component G(w, k)_00 
             sign,           # Direction of the chain
             F_RList,        # List where threads store return values
             threadIdx):     # Index of the current thread
                
-    # Last element of the inverse of the chain F(w, e)_+-^-1
+    # Last element of the inverse of the chain F(w, k)_+-^-1
     F_R_invMtrx = G_00_R_invMtrx + sign*L*E
     
     # Continued fraction
@@ -35,8 +35,8 @@ def trgtF_R(G_00_R_invMtrx, # Inverse of the retarded component G(w, e)_00
     # Take the inverse 
     F_RMtrx = np.reciprocal(F_R_invMtrx)
     
-    # Integrate in energy
-    F_RArr = np.sum(dosMtrx*F_RMtrx*de, 1)
+    # Sum over momenta
+    F_RArr = np.sum(F_RMtrx, 1)/N_k
      
     F_RList[threadIdx] = F_RArr
     
@@ -86,14 +86,18 @@ def getSig_U(g_0_RArr, g_0_KArr, beta, U):
     Sig_U_RArr = - (U/2.)**2*(g_0_RKKArr + g_0_RRRArr + 2.*g_0_KRKArr)
     
     # Compute the Keldysh component, assuming that the real part is zero
-    Sig_U_KArr = 1.j*np.tanh(beta*wArr/2.)*Sig_U_RArr.imag
+    Sig_U_KArr = getKeldyshDFT(Sig_U_RArr.imag, beta)
 
     return Sig_U_RArr, Sig_U_KArr
+
+# Get Keldysh component using the Dissipation Fluctuation Theorem    
+def getKeldyshDFT(imag, beta):
+    return 1.j*np.tanh(beta*wArr/2.)*imag
 
 def main(beta, U, 
          Sig_U_RArr, Sig_U_KArr,
          Sig_B_RArr, Sig_B_KArr,
-         G_pp_RArr=np.zeros(N_w)):
+         G_pp_RArr=np.zeros(N_w), G_dd_RArr=np.zeros(N_w)):
     
     converged   = False             # Flag to check convergence of the dmft loop
     iter        = 0                 # dmft loop iterator
@@ -101,22 +105,22 @@ def main(beta, U,
     tic = time.process_time()
 
     # Update the Keldysh component of the bath self-energy 
-    Sig_B_KArr  = -1.j*np.tanh(beta*wArr/2.)*Gamma           
+    Sig_B_KArr  = getKeldyshDFT(Sig_B_RArr.imag, beta)  
 
-    while not converged or iter <= 1:
+    while not converged:
         print("dmft loop iteration=" + str(iter)) 
         
         # Broadcast self-energy to the appropriate matrix shapes
-        Sig_U_RMtrx  = np.transpose(Sig_U_RArr*np.ones([N_e, N_w]))
-        Sig_B_RMtrx  = np.transpose(Sig_B_RArr*np.ones([N_e, N_w]))
+        Sig_U_RMtrx  = np.transpose(Sig_U_RArr*np.ones([N_k, N_w]))
+        Sig_B_RMtrx  = np.transpose(Sig_B_RArr*np.ones([N_k, N_w]))
               
-        # Inverse of the retarded component of the central site p Green function G(w, e)_00
-        G_00_R_invMtrx = 1.j*wMtrx + mu - e_p - eMtrx + Sig_B_RMtrx - V**2/(1.j*wMtrx + mu - e_d - Sig_U_RMtrx)
+        # Inverse of the retarded component of the central site p Green function G(w, k)_00
+        G_00_R_invMtrx = wMtrx + mu - e_p - e_kMtrx - Sig_B_RMtrx - V**2/(wMtrx + mu - e_d - Sig_U_RMtrx)
 
-        # Thread for integrating G(w, e)_00 in the energy
+        # Thread for summing G(w, k)_00 in the momenta
         G_00List = [None]       # Stores the result of thread  
         def trgtG_00(G_00List):
-            G_00List[0] = np.sum(dosMtrx*G_00_R_invMtrx*de, 1)
+            G_00List[0] = np.sum(G_00_R_invMtrx, 1)/N_k
 
         # Start thread    
         thrG_00 = Thread(target = trgtG_00, args = (G_00List,))
@@ -130,19 +134,16 @@ def main(beta, U,
         G_00_R_invArr = G_00List[0]
 
         # Store old value
-        if (iter > 0):
-            oldG_pp_RArr = G_pp_RArr.copy()
+        oldG_pp_RArr = G_pp_RArr.copy()
 
         # Retarded component of the local p Green function G(w)_pp 
-        if (iter > 0 or G_pp_RArr.all() == 0.):
-            G_pp_RArr = np.reciprocal(G_00_R_invArr - t**2*(F_rhs_RArr + F_lhs_RArr))
-
+        G_pp_RArr = np.reciprocal(G_00_R_invArr - t**2*(F_rhs_RArr + F_lhs_RArr))
+        
         # Retarded component of the impurity Green function g(w)_0
-        g_0_RArr = np.reciprocal(1.j*wArr + mu - e_d - V**2/(1.j*wArr + mu - e_p - t**2*G_pp_RArr))
+        g_0_RArr = np.reciprocal(wArr + mu - e_d - V**2/(wArr + mu - e_p - Sig_B_RArr - t**2*G_pp_RArr))
         
         # Store old value
-        if (iter > 0):
-            oldG_dd_RArr = G_dd_RArr.copy()
+        oldG_dd_RArr = G_dd_RArr.copy()
 
         # Retarded component of the local d Green function G(w)_dd
         G_dd_RArr = np.reciprocal(np.reciprocal(g_0_RArr) - Sig_U_RArr)
@@ -154,9 +155,8 @@ def main(beta, U,
         Sig_U_RArr, Sig_U_KArr = getSig_U(g_0_RArr, g_0_KArr, beta, U)
                 
         # Check convergence
-        if (iter > 0):
-            converged  = np.allclose(oldG_pp_RArr, G_pp_RArr, error)
-            converged &= np.allclose(oldG_dd_RArr, G_dd_RArr, error)
+        converged  = np.allclose(oldG_pp_RArr, G_pp_RArr, error)
+        converged &= np.allclose(oldG_dd_RArr, G_dd_RArr, error)
         
         iter = iter+1
 

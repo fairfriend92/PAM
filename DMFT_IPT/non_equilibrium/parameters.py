@@ -4,14 +4,15 @@ import numpy as np
 
 mu      = 0.5                                       # Chemical potential
 Gamma   = 8.e-3                                     # Damping parameter
+#Gamma   = 3.e-1
 e_d     = 0.                                        # Energy of localized electrons
 e_p     = -1.                                       # Energy of conduction electrons
 t       = 0.5                                       # Hopping amplitude 
-D       = 2*t                                       # Half-bandwidth
+D       = 2.*t                                      # Half-bandwidth
 V       = 0.9                                       # d-p electrons hybridization
 E       = 0.0                                       # Electric field
 L       = 500                                       # Length of the semi-infinite chain
-error   = 1.e-2                                     # Convergence criterium
+error   = 1.e-3                                     # Convergence criterium
 
 ''' Input '''
 
@@ -41,18 +42,17 @@ wArr        = np.arange(minW, maxW, dw)             # Frequencies
 N_w         = len(wArr)                             # Number of frequencies
 
 # Self-energies
-Sig_U_RArr  = minU**2/(4*wArr)                      # Initial Coulomb self-energy, retarded component
+Sig_U_RArr  = minU**2/(4.*wArr)                     # Initial Coulomb self-energy, retarded component
 Sig_U_KArr  = 0.*np.zeros(N_w)                      # Initial Coulomb self-energy, Keldysh component
 Sig_B_RArr  = -1.j*Gamma*np.ones(N_w)               # Bath self-energy, retarded component
 Sig_B_KArr  = -1.j*np.tanh(minBeta*wArr/2.)*Gamma   # Bath self-energy, Keldysh component
 
-# Energies
-de      = 2.*t/256.                                 # Lattice energy step  
-eArr    = np.arange(-2*t, 2*t, de)                  # Lattice energy
-N_e     = len(eArr)                                 # Len of energy array
-dosArr  = 2*np.sqrt(D**2 - eArr**2)/(np.pi * D**2)  # Bethe lattice DOS
+# Momentum
+dk      = np.pi/256.                                # Momenta separation
+kArr    = np.arange(-np.pi, np.pi, dk)              # Momenta array
+N_k     = len(kArr)                                 # Number of momentum vectors
+e_kArr  = -2.*t*np.cos(kArr)                        # Lattice energy
 
 # Broadcast arrays to the appropriate matrix shapes
-eMtrx       = eArr*np.ones([N_w, N_e])
-dosMtrx     = dosArr*np.ones([N_w, N_e])           
-wMtrx       = np.transpose(wArr*np.ones([N_e, N_w]))
+wMtrx       = np.transpose(wArr*np.ones([N_k, N_w]))
+e_kMtrx     = e_kArr*np.ones([N_w, N_k])

@@ -18,7 +18,7 @@ def myPlot(x, y,
             
     fig, ax = plt.subplots(figsize=(12, 8))
     size = 24 
-    ax.scatter(x, y, color='black', s=2)
+    ax.plot(x, y, color='black', marker='s')
     ax.set(xlabel=xLabel, ylabel=yLabel)
     ax.xaxis.label.set_size(size)
     ax.yaxis.label.set_size(size)
@@ -49,8 +49,6 @@ def trgtDos(G_pp_R, G_dd_R, beta, U):
 
 for U in UArr:
     for beta in betaArr:
-        #G_pp_seed_R = -2.j / (wArr + np.sign(wArr) * np.sqrt(np.power(wArr, 2) + D**2))
-        
         G_pp_R, G_dd_R = dmft.main(beta, U,     
                                    Sig_U_RArr, Sig_U_KArr,
                                    Sig_B_RArr, Sig_B_KArr)
