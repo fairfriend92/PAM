@@ -29,7 +29,7 @@ def trgtF_R(G_00_R_invMtrx, # Inverse of the retarded component G(w, k)_00
     F_R_invMtrx = G_00_R_invMtrx + sign*L*E
     
     # Continued fraction
-    for x in np.arange(sign*(L-1.), 0.):
+    for x in np.arange(sign*(L-1.), 0., -sign):
         F_R_invMtrx = G_00_R_invMtrx + x*E - t**2/F_R_invMtrx
      
     # Take the inverse 
@@ -115,7 +115,7 @@ def main(beta, U,
         Sig_B_RMtrx  = np.transpose(Sig_B_RArr*np.ones([N_k, N_w]))
               
         # Inverse of the retarded component of the central site p Green function G(w, k)_00
-        G_00_R_invMtrx = wMtrx + mu - e_p - e_kMtrx - Sig_B_RMtrx - V**2/(wMtrx + mu - e_d - Sig_U_RMtrx)
+        G_00_R_invMtrx = wMtrx + mu - e_p - e_kMtrx - Sig_B_RMtrx - V**2/(wMtrx + mu - e_d - Sig_U_RMtrx - Sig_B_RMtrx)
 
         # Thread for summing G(w, k)_00 in the momenta
         G_00List = [None]       # Stores the result of thread  
@@ -140,7 +140,7 @@ def main(beta, U,
         G_pp_RArr = np.reciprocal(G_00_R_invArr - t**2*(F_rhs_RArr + F_lhs_RArr))
         
         # Retarded component of the impurity Green function g(w)_0
-        g_0_RArr = np.reciprocal(wArr + mu - e_d - V**2/(wArr + mu - e_p - Sig_B_RArr - t**2*G_pp_RArr))
+        g_0_RArr = np.reciprocal(wArr + mu - e_d - Sig_B_RArr - V**2/(wArr + mu - e_p - Sig_B_RArr - t**2*G_pp_RArr)) 
         
         # Store old value
         oldG_dd_RArr = G_dd_RArr.copy()

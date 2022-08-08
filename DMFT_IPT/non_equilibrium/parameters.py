@@ -4,14 +4,14 @@ import numpy as np
 
 mu      = 0.5                                       # Chemical potential
 Gamma   = 8.e-3                                     # Damping parameter
-#Gamma   = 3.e-1
+#Gamma   = 1.e-2
 e_d     = 0.                                        # Energy of localized electrons
 e_p     = -1.                                       # Energy of conduction electrons
 t       = 0.5                                       # Hopping amplitude 
 D       = 2.*t                                      # Half-bandwidth
 V       = 0.9                                       # d-p electrons hybridization
 E       = 0.0                                       # Electric field
-L       = 500                                       # Length of the semi-infinite chain
+L       = 500.                                      # Length of the semi-infinite chain
 error   = 1.e-3                                     # Convergence criterium
 
 ''' Input '''
