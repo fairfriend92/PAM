@@ -3,10 +3,6 @@ from threading import Thread
 import matplotlib.pylab as plt
 import dmft 
 
-''' Variables '''
-
-thrDos = None       # Thread used for computing and plotting the DOS
-
 ''' Functions '''
 
 # Make figure
@@ -38,33 +34,67 @@ def myPlot(x, yList,
     plt.legend(prop={'size': size})
     plt.savefig('./figures/'+fileName+'.pdf') 
     plt.close()
+    
   
-# Thread for computing and plotting the density of states  
-def trgtDos(G_pp_R, G_dd_R, beta, U):                                         
-    myPlot(wArr, [-G_pp_R.imag/np.pi],               
-           'DOS_p_beta='+str(beta)+'_U='+str(U), 
+# Thread for computing and plotting 
+# the density of states and the electron concentration
+def trgtDos_N(G_pp_R, G_dd_R, beta, U, mu):  
+    global n_pList, n_dList
+    
+    dos_p   = -G_pp_R.imag/np.pi
+    dos_d   = -G_dd_R.imag/np.pi    
+    
+    inputStr = '_beta='+str(beta)+'_U='+str(U)+'_mu='+str(mu)
+
+    # TODO: Save the electron concentration for all betas 
+    if beta == minBeta:
+        n_pList.append(np.sum(dos_p/(1. + np.exp(beta*wArr))*dw))
+        n_dList.append(np.sum(dos_d/(1. + np.exp(beta*wArr))*dw))
+        if mu == maxMu:
+            myPlot(muArr, [n_pList, n_dList],                
+                   'n'+inputStr, 
+                    r'$\omega$', 'electron concentration', [r'$n_p$', r'$n_d$'])  
+            n_pList = []
+            n_dList = []
+    
+    '''
+    myPlot(wArr, [dos_p],               
+           'DOS_p'+inputStr, 
            r'$\omega$', r'$\rho(\omega)$')
             
-    myPlot(wArr, [-G_dd_R.imag/np.pi],                
-           'DOS_d_beta='+str(beta)+'_U='+str(U), 
-           r'$\omega$', r'$\rho(\omega)$')    
+    myPlot(wArr, [dos_d],                
+           'DOS_d'+inputStr, 
+           r'$\omega$', r'$\rho(\omega)$')
+    '''
            
-    myPlot(wArr, [-G_pp_R.imag/np.pi, -G_dd_R.imag/np.pi],                
-           'DOS_beta='+str(beta)+'_U='+str(U), 
+    myPlot(wArr, [dos_p, dos_d],                
+           'DOS'+inputStr, 
            r'$\omega$', r'$\rho(\omega)$', ['p electrons', 'd electrons'])  
+           
+''' Variables '''
+
+thrDos_N    = None      # Thread used for computing and plotting the DOS and electron concentration
+n_pList     = []        # List of p electron concentrations for different mu
+n_dList     = []        # List of d electron concentrations for different mu
     
 ''' Main '''
 
 for U in UArr:
-    for beta in betaArr:
-        G_pp_R, G_dd_R = dmft.main(beta, U,     
-                                   Sig_U_RArr, Sig_U_KArr,
-                                   Sig_B_RArr, Sig_B_KArr)
+    for mu in muArr:
+        for beta in betaArr:
+            print('beta='+str(beta)+' mu='+str(mu)+' U='+str(U))
         
-        # Create and execute thread for computing and plotting the DOS          
-        if thrDos is not None:
-            thrDos.join()                                                    # Wait for old thread to finish
-        thrDos = Thread(target=trgtDos, args=(G_pp_R, G_dd_R, beta, U))      # Create new thread
-        thrDos.start()                                                       # Start the thread
-        
-thrDos.join()   
+            G_pp_R, G_dd_R = dmft.main(beta, U, mu,     
+                                       Sig_U_RArr, Sig_U_KArr,
+                                       Sig_B_RArr, Sig_B_KArr)
+            
+            # Create and execute thread for computing and plotting 
+            # the DOS and electron concentration        
+            if thrDos_N is not None:
+                thrDos_N.join()                                     # Wait for old thread to finish
+            thrDos_N = Thread(target=trgtDos_N,                     
+                              args=(G_pp_R, G_dd_R, beta, U, mu))   # Create new thread
+            thrDos_N.start()                                        # Start the thread
+
+# Wait for the last thread        
+thrDos_N.join()   

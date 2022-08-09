@@ -92,9 +92,9 @@ def getSig_U(g_0_RArr, g_0_KArr, beta, U):
 
 # Get Keldysh component using the Dissipation Fluctuation Theorem    
 def getKeldyshDFT(imag, beta):
-    return 1.j*np.tanh(beta*wArr/2.)*imag
+    return 1.j*np.tanh(beta*wArr/2.)*imag # TODO: Should there be a factor 2?
 
-def main(beta, U, 
+def main(beta, U, mu,
          Sig_U_RArr, Sig_U_KArr,
          Sig_B_RArr, Sig_B_KArr,
          G_pp_RArr=np.zeros(N_w), G_dd_RArr=np.zeros(N_w)):
