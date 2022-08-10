@@ -44,29 +44,21 @@ def trgtDos_N(G_pp_R, G_dd_R, beta, U, mu):
     dos_p   = -G_pp_R.imag/np.pi
     dos_d   = -G_dd_R.imag/np.pi    
     
-    inputStr = '_beta='+str(beta)+'_U='+str(U)+'_mu='+str(mu)
-
     # TODO: Save the electron concentration for all betas 
     if beta == minBeta:
         n_pList.append(np.sum(dos_p/(1. + np.exp(beta*wArr))*dw))
         n_dList.append(np.sum(dos_d/(1. + np.exp(beta*wArr))*dw))
         if mu == maxMu:
+            inputStr = '_beta='+str(beta)+'_U='+str(U)
+        
             myPlot(muArr, [n_pList, n_dList],                
                    'n'+inputStr, 
-                    r'$\omega$', 'electron concentration', [r'$n_p$', r'$n_d$'])  
+                    r'$\mu$', 'electron concentration', [r'$n_p$', r'$n_d$'])  
             n_pList = []
             n_dList = []
-    
-    '''
-    myPlot(wArr, [dos_p],               
-           'DOS_p'+inputStr, 
-           r'$\omega$', r'$\rho(\omega)$')
             
-    myPlot(wArr, [dos_d],                
-           'DOS_d'+inputStr, 
-           r'$\omega$', r'$\rho(\omega)$')
-    '''
-           
+    inputStr = '_beta='+str(beta)+'_U='+str(U)+'_mu='+str(mu)
+
     myPlot(wArr, [dos_p, dos_d],                
            'DOS'+inputStr, 
            r'$\omega$', r'$\rho(\omega)$', ['p electrons', 'd electrons'])  

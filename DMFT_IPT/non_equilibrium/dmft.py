@@ -44,7 +44,7 @@ def getSig_U(g_0_RArr, g_0_KArr, beta, U):
     # Thread for doing convolutions
     convList = 3*[None] # Stores the results
     def trgtMyConv(a, b, convList, threadIdx):
-        convList[threadIdx] = np.convolve(a, b, 'same')
+        convList[threadIdx] = np.convolve(a, b, 'same')#*dw/(2.*np.pi)
         
     # Create the threads to do the 2 terms convolutions
     thrg_0_KK = Thread(target = trgtMyConv, args = (g_0_KArr, g_0_KArr, convList, 0)) # g_0_K X g_0_K
@@ -65,9 +65,9 @@ def getSig_U(g_0_RArr, g_0_KArr, beta, U):
     g_0_RRArr = convList[2]
     
     # Create the threads to do the 3 terms convolutions 
-    thrg_0_RKK = Thread(target = trgtMyConv, args = (np.flip(g_0_RArr), g_0_KKArr, convList, 0)) # g_0_R X g_0_K X g_0_K
-    thrg_0_KRK = Thread(target = trgtMyConv, args = (np.flip(g_0_KArr), g_0_RKArr, convList, 1)) # g_0_K X g_0_R X g_0_k
-    thrg_0_RRR = Thread(target = trgtMyConv, args = (np.flip(g_0_RArr), g_0_RRArr, convList, 2)) # g_0_R X g_0_R X g_0_R
+    thrg_0_RKK = Thread(target = trgtMyConv, args = (np.conj(np.flip(g_0_RArr)), g_0_KKArr, convList, 0))   # g_0_R* X g_0_K X g_0_K
+    thrg_0_KRK = Thread(target = trgtMyConv, args = (np.flip(g_0_KArr), g_0_RKArr, convList, 1))            # g_0_K  X g_0_R X g_0_k
+    thrg_0_RRR = Thread(target = trgtMyConv, args = (np.conj(np.flip(g_0_RArr)), g_0_RRArr, convList, 2))   # g_0_R* X g_0_R X g_0_R
     
     # Start the threads wait for completion and store results
     thrg_0_RKK.start()    
