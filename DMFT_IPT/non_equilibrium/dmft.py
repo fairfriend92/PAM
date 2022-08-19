@@ -44,7 +44,7 @@ def getSig_U(g_0_RArr, g_0_KArr, beta, U):
     # Thread for doing convolutions
     convList = 3*[None] # Stores the results
     def trgtMyConv(a, b, convList, threadIdx):
-        convList[threadIdx] = np.convolve(a, b, 'same')#*dw/(2.*np.pi)
+        convList[threadIdx] = np.convolve(a, b, 'same')*dw/(2.*np.pi)
         
     # Create the threads to do the 2 terms convolutions
     thrg_0_KK = Thread(target = trgtMyConv, args = (g_0_KArr, g_0_KArr, convList, 0)) # g_0_K X g_0_K
@@ -107,7 +107,7 @@ def main(beta, U, mu,
     # Update the Keldysh component of the bath self-energy 
     Sig_B_KArr  = getKeldyshDFT(Sig_B_RArr.imag, beta)  
 
-    while not converged:
+    while not converged and iter < maxIter:
         print("dmft loop iteration=" + str(iter)) 
         
         # Broadcast self-energy to the appropriate matrix shapes
@@ -148,11 +148,18 @@ def main(beta, U, mu,
         # Retarded component of the local d Green function G(w)_dd
         G_dd_RArr = np.reciprocal(np.reciprocal(g_0_RArr) - Sig_U_RArr)
         
+        print(oldG_dd_RArr[:10])
+        print(G_dd_RArr[:10])
+                
         # Keldysh component of the impurity Green function g(w)_0
         g_0_KArr = np.power(g_0_RArr, 2)*Sig_B_KArr
 
         # Coulomb self-energy according to IPT
         Sig_U_RArr, Sig_U_KArr = getSig_U(g_0_RArr, g_0_KArr, beta, U)
+        
+        # Mix old and new solutions
+        G_pp_RArr = mix*oldG_pp_RArr + (1. - mix)*G_pp_RArr
+        G_dd_RArr = mix*oldG_dd_RArr + (1. - mix)*G_dd_RArr
                 
         # Check convergence
         converged  = np.allclose(oldG_pp_RArr, G_pp_RArr, error)

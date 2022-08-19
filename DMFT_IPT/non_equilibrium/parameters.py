@@ -10,8 +10,10 @@ t       = 0.5                                       # Hopping amplitude
 D       = 2.*t                                      # Half-bandwidth
 V       = 0.9                                       # d-p electrons hybridization
 E       = 0.0                                       # Electric field
-L       = 500.                                      # Length of the semi-infinite chain
-error   = 1.e-3                                     # Convergence criterium
+L       = 5.                                        # Length of the semi-infinite chain
+mix     = 0.0                                       # Mixing coefficient of the old and new solutions
+error   = 1.e-2                                     # Convergence criterium
+maxIter = 100.                                      # Maximum number of iterations of the dmft loop
 
 ''' Input '''
 
@@ -21,7 +23,7 @@ dMu     = 0.5                                       # Chemical potential step
 minMu   = -2.5                                      # Lowest chemical potential
 maxMu   = 2.5                                       # Highest chemical potential
 muArr   = np.arange(minMu, maxMu+dMu, dMu)          # Array of chemical potentials
-
+    
 # Coulomb interaction
 
 dU      = 1.                                        # Coulomb interaction step
