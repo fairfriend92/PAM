@@ -2,7 +2,7 @@ import numpy as np
 
 ''' Constants '''
 
-Gamma   = 8.e-3                                     # Damping parameter
+Gamma   = 2.e-2                                     # Damping parameter
 #Gamma   = 1.e-2
 e_d     = 0.                                        # Energy of localized electrons
 e_p     = -1.                                       # Energy of conduction electrons
@@ -10,7 +10,7 @@ t       = 0.5                                       # Hopping amplitude
 D       = 2.*t                                      # Half-bandwidth
 V       = 0.9                                       # d-p electrons hybridization
 E       = 0.0                                       # Electric field
-L       = 5.                                        # Length of the semi-infinite chain
+L       = 100.                                      # Length of the semi-infinite chain
 mix     = 0.0                                       # Mixing coefficient of the old and new solutions
 error   = 1.e-2                                     # Convergence criterium
 maxIter = 100.                                      # Maximum number of iterations of the dmft loop
@@ -23,6 +23,7 @@ dMu     = 0.5                                       # Chemical potential step
 minMu   = -2.5                                      # Lowest chemical potential
 maxMu   = 2.5                                       # Highest chemical potential
 muArr   = np.arange(minMu, maxMu+dMu, dMu)          # Array of chemical potentials
+muArr   = [0.5]
     
 # Coulomb interaction
 
@@ -30,7 +31,7 @@ dU      = 1.                                        # Coulomb interaction step
 minU    = 2.                                        # Lowest Coulomb interaction
 maxU    = 2.                                        # Highest Coulomb interaction
 UArr    = np.arange(minU, maxU+dU, dU)              # Array of Us
-UArr    = [minU]
+UArr    = [2.]
 N_U     = len(UArr)                                 # Number of Us
 
 # Temperatures
@@ -43,7 +44,7 @@ betaArr     = [minBeta]
 N_beta      = len(betaArr)                          # Number of betas
 
 # Frequencies
-dw          = 1.e-2                                 # Frequency step
+dw          = 1.e-2                                 # Frequency step - should be less than Gamma and E!
 minW        = -5.                                   # lowest frequency
 maxW        = 5.                                    # Highest frequency
 wArr        = np.arange(minW, maxW, dw)             # Frequencies
