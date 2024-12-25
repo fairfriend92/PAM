@@ -19,11 +19,11 @@ maxIter = 100.                                      # Maximum number of iteratio
 
 # Chemical potential
 
-dMu     = 0.5                                       # Chemical potential step
+dMu     = 0.05                                      # Chemical potential step
 minMu   = -2.5                                      # Lowest chemical potential
-maxMu   = 2.5                                       # Highest chemical potential
+maxMu   = 2.                                        # Highest chemical potential
 muArr   = np.arange(minMu, maxMu+dMu, dMu)          # Array of chemical potentials
-muArr   = [0.5]
+#muArr   = [0.5]
     
 # Coulomb interaction
 

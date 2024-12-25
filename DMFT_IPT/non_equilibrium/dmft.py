@@ -42,48 +42,69 @@ def trgtF_R(G_00_R_invMtrx, # Inverse of the retarded component G(w, k)_00
     
 def getSig_U(g_0_RArr, g_0_KArr, beta, U):
     # Thread for doing convolutions
-    convList = 3*[None] # Stores the results
+    convList = 4*[None] # Stores the results
     def trgtMyConv(a, b, convList, threadIdx):
         convList[threadIdx] = np.convolve(a, b, 'same')*dw/(2.*np.pi)
         
+    # Advanced Green function
+    g_0_AArr = np.conj(np.flip(g_0_RArr))
+    
+    # (p)lus and (m)inus basis Green function
+    g_0_ppArr  = 0.5*(g_0_KArr + g_0_AArr + g_0_RArr)
+    g_0_mmArr  = 0.5*(g_0_KArr - g_0_AArr - g_0_RArr)
+    g_0_pmArr  = 0.5*(g_0_KArr + g_0_AArr - g_0_RArr)
+    g_0_mpArr  = 0.5*(g_0_KArr - g_0_AArr + g_0_RArr)
+        
     # Create the threads to do the 2 terms convolutions
-    thrg_0_KK = Thread(target = trgtMyConv, args = (g_0_KArr, g_0_KArr, convList, 0)) # g_0_K X g_0_K
-    thrg_0_RK = Thread(target = trgtMyConv, args = (g_0_RArr, g_0_KArr, convList, 1)) # g_0_R X g_0_K
-    thrg_0_RR = Thread(target = trgtMyConv, args = (g_0_RArr, g_0_RArr, convList, 2)) # g_0_R X g_0_R
+    thrg_0_pp2 = Thread(target = trgtMyConv, args = (g_0_ppArr, g_0_ppArr, convList, 0)) # g_0_pp X g_0_pp
+    thrg_0_mm2 = Thread(target = trgtMyConv, args = (g_0_mmArr, g_0_mmArr, convList, 1)) # g_0_mm X g_0_mm
+    thrg_0_pm2 = Thread(target = trgtMyConv, args = (g_0_pmArr, g_0_pmArr, convList, 2)) # g_0_pm X g_0_pm
+    thrg_0_mp2 = Thread(target = trgtMyConv, args = (g_0_mpArr, g_0_mpArr, convList, 3)) # g_0_mp X g_0_mp
     
     # Start the threads wait for completion and store results
-    thrg_0_KK.start()
-    thrg_0_RK.start()
-    thrg_0_RR.start()
+    thrg_0_pp2.start()
+    thrg_0_mm2.start()
+    thrg_0_pm2.start()
+    thrg_0_mp2.start()
     
-    thrg_0_KK.join()
-    thrg_0_RK.join()
-    thrg_0_RR.join()
+    thrg_0_pp2.join()
+    thrg_0_mm2.join()
+    thrg_0_pm2.join()
+    thrg_0_mp2.join()
     
-    g_0_KKArr = convList[0]
-    g_0_RKArr = convList[1]
-    g_0_RRArr = convList[2]
+    g_0_pp2Arr = convList[0]
+    g_0_mm2Arr = convList[1]
+    g_0_pm2Arr = convList[2]
+    g_0_mp2Arr = convList[3]
     
     # Create the threads to do the 3 terms convolutions 
-    thrg_0_RKK = Thread(target = trgtMyConv, args = (np.conj(np.flip(g_0_RArr)), g_0_KKArr, convList, 0))   # g_0_R* X g_0_K X g_0_K
-    thrg_0_KRK = Thread(target = trgtMyConv, args = (np.flip(g_0_KArr), g_0_RKArr, convList, 1))            # g_0_K  X g_0_R X g_0_k
-    thrg_0_RRR = Thread(target = trgtMyConv, args = (np.conj(np.flip(g_0_RArr)), g_0_RRArr, convList, 2))   # g_0_R* X g_0_R X g_0_R
+    thrg_0_pp2pp = Thread(target = trgtMyConv, 
+                          args = (g_0_pp2Arr, np.flip(g_0_pp2Arr), convList, 0))    # g_0_pp X g_0_pp X g_0_pp
+    thrg_0_mm2mm = Thread(target = trgtMyConv, 
+                          args = (g_0_mm2Arr, np.flip(g_0_mm2Arr), convList, 1))    # g_0_mm X g_0_mm X g_0_mm
+    thrg_0_pm2mp = Thread(target = trgtMyConv, 
+                          args = (g_0_pm2Arr, np.flip(g_0_mpArr), convList, 2))     # g_0_pm X g_0_pm X g_0_mp
+    thrg_0_mp2pm = Thread(target = trgtMyConv, 
+                          args = (g_0_mp2Arr, np.flip(g_0_pm2Arr), convList, 3))    # g_0_mp X g_0_mp X g_0_pm
     
     # Start the threads wait for completion and store results
-    thrg_0_RKK.start()    
-    thrg_0_KRK.start()
-    thrg_0_RRR.start()
+    thrg_0_pp2pp.start()    
+    thrg_0_mm2mm.start()
+    thrg_0_pm2mp.start()
+    thrg_0_mp2pm.start()
     
-    thrg_0_RKK.join()
-    thrg_0_KRK.join()
-    thrg_0_RRR.join()
+    thrg_0_pp2pp.join()    
+    thrg_0_mm2mm.join()
+    thrg_0_pm2mp.join()
+    thrg_0_mp2pm.join()
     
-    g_0_RKKArr = convList[0]
-    g_0_KRKArr = convList[1]
-    g_0_RRRArr = convList[2]
+    g_0_pp2ppArr = convList[0]
+    g_0_mm2mmArr = convList[1]
+    g_0_pm2mpArr = convList[2]
+    g_0_mp2pmArr = convList[3]
     
     # Compute the retarded component 
-    Sig_U_RArr = - (U/2.)**2*(g_0_RKKArr + g_0_RRRArr + 2.*g_0_KRKArr)
+    Sig_U_RArr = - (U/2.)**2*(-g_0_pp2ppArr - g_0_mp2pmArr + g_0_pm2mpArr + g_0_mm2mmArr)
     
     # Compute the Keldysh component, assuming that the real part is zero
     Sig_U_KArr = getKeldyshDFT(Sig_U_RArr.imag, beta)
@@ -147,9 +168,6 @@ def main(beta, U, mu,
 
         # Retarded component of the local d Green function G(w)_dd
         G_dd_RArr = np.reciprocal(np.reciprocal(g_0_RArr) - Sig_U_RArr)
-        
-        print(oldG_dd_RArr[:10])
-        print(G_dd_RArr[:10])
                 
         # Keldysh component of the impurity Green function g(w)_0
         g_0_KArr = np.power(g_0_RArr, 2)*Sig_B_KArr
@@ -168,6 +186,6 @@ def main(beta, U, mu,
         iter = iter+1
 
     toc = time.process_time()
-    print(toc-tic)
+    print('time=' + str(np.round(toc-tic, 3)))
     
     return G_pp_RArr, G_dd_RArr
