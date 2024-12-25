@@ -2,8 +2,13 @@ import numpy as np
 
 ''' Constants '''
 
+<<<<<<< HEAD
 Gamma   = 2.e-2                                     # Damping parameter
 #Gamma   = 1.e-2
+=======
+Gamma   = 8.e-3                                     # Damping parameter
+#Gamma   = 0.
+>>>>>>> dc512d6e56ba12709779a01124cca03d542874f6
 e_d     = 0.                                        # Energy of localized electrons
 e_p     = -1.                                       # Energy of conduction electrons
 t       = 0.5                                       # Hopping amplitude 
@@ -12,8 +17,8 @@ V       = 0.9                                       # d-p electrons hybridizatio
 E       = 0.0                                       # Electric field
 L       = 100.                                      # Length of the semi-infinite chain
 mix     = 0.0                                       # Mixing coefficient of the old and new solutions
-error   = 1.e-2                                     # Convergence criterium
-maxIter = 100.                                      # Maximum number of iterations of the dmft loop
+error   = 1.e-3                                     # Convergence criterium
+maxIter = 10.                                       # Maximum number of iterations of the dmft loop
 
 ''' Input '''
 
@@ -31,7 +36,10 @@ dU      = 1.                                        # Coulomb interaction step
 minU    = 2.                                        # Lowest Coulomb interaction
 maxU    = 2.                                        # Highest Coulomb interaction
 UArr    = np.arange(minU, maxU+dU, dU)              # Array of Us
+<<<<<<< HEAD
 UArr    = [2.]
+=======
+>>>>>>> dc512d6e56ba12709779a01124cca03d542874f6
 N_U     = len(UArr)                                 # Number of Us
 
 # Temperatures

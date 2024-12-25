@@ -168,7 +168,11 @@ def main(beta, U, mu,
 
         # Retarded component of the local d Green function G(w)_dd
         G_dd_RArr = np.reciprocal(np.reciprocal(g_0_RArr) - Sig_U_RArr)
+<<<<<<< HEAD
                 
+=======
+                   
+>>>>>>> dc512d6e56ba12709779a01124cca03d542874f6
         # Keldysh component of the impurity Green function g(w)_0
         g_0_KArr = np.power(g_0_RArr, 2)*Sig_B_KArr
 

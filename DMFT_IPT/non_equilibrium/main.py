@@ -48,8 +48,8 @@ def trgtDos_N(G_pp_R, G_dd_R, beta, U, mu):
     if beta == minBeta:
         n_pList.append(np.sum(dos_p/(1. + np.exp(beta*wArr))*dw))
         n_dList.append(np.sum(dos_d/(1. + np.exp(beta*wArr))*dw))
-        if mu == maxMu:
-            inputStr = '_beta='+str(beta)+'_U='+str(U)
+        if np.round(mu, 2) == maxMu:
+            inputStr = '_beta='+str(np.round(beta,3))+'_U='+str(np.round(U, 3))
         
             myPlot(muArr, [n_pList, n_dList],                
                    'n'+inputStr, 
@@ -57,7 +57,7 @@ def trgtDos_N(G_pp_R, G_dd_R, beta, U, mu):
             n_pList = []
             n_dList = []
             
-    inputStr = '_beta='+str(beta)+'_U='+str(U)+'_mu='+str(mu)
+    inputStr = '_beta='+str(np.round(beta,3))+'_U='+str(np.round(U, 3))+'_mu='+str(np.round(mu,3))
 
     myPlot(wArr, [dos_p, dos_d],                
            'DOS'+inputStr, 
@@ -74,7 +74,9 @@ n_dList     = []        # List of d electron concentrations for different mu
 for U in UArr:
     for mu in muArr:
         for beta in betaArr:
-            print('beta='+str(beta)+' mu='+str(mu)+' U='+str(U))
+            print('beta=' + str(np.round(beta,  3)) +
+                  ' mu=' + str(np.round(mu,3)) +
+                  ' U=' + str(np.round(U, 3)))
         
             G_pp_R, G_dd_R = dmft.main(beta, U, mu,     
                                        Sig_U_RArr, Sig_U_KArr,
